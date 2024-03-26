@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Image Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        label {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        label:hover {
+            background-color: #45a049;
+        }
+        button {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #005f7e;
+        }
+        #image-preview {
+            margin-top: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>MNIST Image Prediction</h2>
+        <input type="file" id="upload" accept="image/*">
+        <label for="upload">Choose Image</label>
+        <div id="image-preview"></div>
+        <button id="predict-btn">Predict</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const uploadInput = document.getElementById('upload');
+        const imagePreview = document.getElementById('image-preview');
+        const predictButton = document.getElementById('predict-btn');
+        const resultDiv = document.getElementById('result');
+
+        uploadInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imageUrl = event.target.result;
+                    imagePreview.innerHTML = `<img src="${imageUrl}" alt="Uploaded Image" style="max-width: 100%; height: auto;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        predictButton.addEventListener('click', function() {
+            const file = uploadInput.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('image', file);
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.innerHTML = `Predicted Label: ${data.label}`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
